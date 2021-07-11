@@ -9,8 +9,6 @@ import re
 import os
 import argparse
 
-RAISE_COLOR_BGR = []
-CALL_COLOR_BGR = []
 SPLIT_TABLEFILE_DIR = "handsell"
 TRUMP_LIST = ["A","K","Q","J","T","9","8","7","6","5","4","3","2"]
 TRUMP_NUM = 13
@@ -112,7 +110,6 @@ class Image_processing_process:
         bottom_left = rects[0][2]
         bottom_right = rects[0][3]
 
-        cv2.imwrite('img.png', img[top_left[1]:bottom_left[1],top_left[0]:top_right[0]])
         x_one_sell = float((top_right[0] - top_left[0]) / 13)
         y_one_sell = float((bottom_left[1] - top_left[1]) / 13)
         
