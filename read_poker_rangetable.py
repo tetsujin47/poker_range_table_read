@@ -195,7 +195,9 @@ class Image_processing_process:
         
         if len(tools) == 0:
             print("No OCR tool found")
-            print("第四引数にtesseractコマンドのインストールパスを絶対パスで指定してください")
+            print("オプションに[-path <tesseractコマンドのパス>]を指定して再度実行してください")
+            print("デフォルトのtesseractコマンドの格納先:C:\Users\ユーザ名\AppData\Local\Programs\Tesseract-OCR\tesseract.exe")
+
             sys.exit(1)
 
         tool = tools[0]
