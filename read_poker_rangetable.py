@@ -73,8 +73,8 @@ class Image_processing_process:
             raise_color_bgr = [18,169,4]
             call_color_bgr = [111,221,255]
         elif range_table_type == "snowie4_win":
-            raise_color_bgr = [153,227,177]
-            call_color_bgr = [188,242,255]
+            raise_color_bgr = [153,225,177]
+            call_color_bgr = [188,241,255]
         else:
             raise_color_bgr = []
             call_color_bgr = []
@@ -105,19 +105,23 @@ class Image_processing_process:
             rect_points = cv2.boxPoints(rect).astype(int)
             rects.append(rect_points)
 
-        top_left = rects[0][0]
-        top_right = rects[0][1]
-        bottom_left = rects[0][2]
-        bottom_right = rects[0][3]
+        rects2 = rects[0]
+        rects2 = sorted(rects2 , key=lambda x:x[1]) #y座標でソート
+        rects2[0:2] = sorted(rects2[0:2] , key=lambda x:x[0])  #2要素だけx座標でソート
+        rects2[2:4] = sorted(rects2[2:4] , key=lambda x:x[0])  #2要素だけx座標でソート
 
-        x_one_sell = float((top_right[0] - top_left[0]) / 13)
-        y_one_sell = float((bottom_left[1] - top_left[1]) / 13)
+        top_left = rects2[0]
+        bottom_right = rects2[3]
         
-        return rects,x_one_sell,y_one_sell
+
+        x_one_sell = float((bottom_right[0] - top_left[0]) / 13)
+        y_one_sell = float((bottom_right[1] - top_left[1]) / 13)
+        return rects2,x_one_sell,y_one_sell
         
     def output_split_image_file(self,img,rects,x_one_sell,y_one_sell,SPLIT_TABLEFILE_DIR,range_table_type):
         x_sell_num = TRUMP_NUM
         y_sell_num = TRUMP_NUM
+        top_left = rects[0]
         
         for y_sell in range(y_sell_num):
             for x_sell in range(x_sell_num):
@@ -134,21 +138,33 @@ class Image_processing_process:
                         split_tablefile2 = "./" + SPLIT_TABLEFILE_DIR + "2/" + str(number) + ".png"
 
                 if range_table_type == "snowie3_win":
-                    top = int(rects[0][0][1]) + int(y_sell * y_one_sell) + int(y_one_sell / 5)
-                    bottom = int(rects[0][0][1]) + int((y_sell+1) * y_one_sell) - int(y_one_sell / 5)
-                    left = int(rects[0][0][0]) + int(x_sell * x_one_sell) + int(x_one_sell / 5)
-                    right = int(rects[0][0][0]) + int((x_sell+1) * x_one_sell) - int(x_one_sell / 5)
+                    top = int(top_left[1]) + int(y_sell * y_one_sell) + int(y_one_sell / 5)
+                    bottom = int(top_left[1]) + int((y_sell+1) * y_one_sell) - int(y_one_sell / 5)
+                    left = int(top_left[0]) + int(x_sell * x_one_sell) + int(x_one_sell / 5)
+                    right = int(top_left[0]) + int((x_sell+1) * x_one_sell) - int(x_one_sell / 5)
                     cv2.imwrite(split_tablefile,img[top:bottom,left:right])
-                else:
-                    top = int(rects[0][0][1]) + int(y_sell * y_one_sell) + int(y_one_sell / 2)
-                    top2 = int(rects[0][0][1]) + int(y_sell * y_one_sell) + int(3*y_one_sell / 5)
-                    bottom = int(rects[0][0][1]) + int((y_sell+1) * y_one_sell)
-                    left = int(rects[0][0][0]) + int(x_sell * x_one_sell)
-                    right = int(rects[0][0][0]) + int((x_sell+1) * x_one_sell)
-                    left2 = int(rects[0][0][0]) + int(x_sell * x_one_sell) + int(x_one_sell / 5)
-                    right2 = int(rects[0][0][0]) + int((x_sell+1) * x_one_sell) - int(x_one_sell / 5)
+                elif range_table_type == "snowie4_win":
+                    top = int(top_left[1]) + int(y_sell * y_one_sell) + int(y_one_sell / 1.8)
+                    top2 = int(top_left[1]) + int(y_sell * y_one_sell) + int(3*y_one_sell / 5)
+                    bottom = int(top_left[1]) + int((y_sell+1) * y_one_sell)
+                    left = int(top_left[0]) + int(x_sell * x_one_sell)
+                    right = int(top_left[0]) + int((x_sell+1) * x_one_sell)
+                    left2 = int(top_left[0]) + int(x_sell * x_one_sell) + int(x_one_sell / 5)
+                    right2 = int(top_left[0]) + int((x_sell+1) * x_one_sell) - int(x_one_sell / 5)
                     cv2.imwrite(split_tablefile, img[top:bottom,left:right])
                     cv2.imwrite(split_tablefile2, img[top2:bottom,left2:right2])
+                elif range_table_type == "snowie_mac":
+                    top = int(top_left[1]) + int(y_sell * y_one_sell) + int(y_one_sell / 2)
+                    top2 = int(top_left[1]) + int(y_sell * y_one_sell) + int(3*y_one_sell / 5)
+                    bottom = int(top_left[1]) + int((y_sell+1) * y_one_sell)
+                    left = int(top_left[0]) + int(x_sell * x_one_sell)
+                    right = int(top_left[0]) + int((x_sell+1) * x_one_sell)
+                    left2 = int(top_left[0]) + int(x_sell * x_one_sell) + int(x_one_sell / 5)
+                    right2 = int(top_left[0]) + int((x_sell+1) * x_one_sell) - int(x_one_sell / 5)
+                    cv2.imwrite(split_tablefile, img[top:bottom,left:right])
+                    cv2.imwrite(split_tablefile2, img[top2:bottom,left2:right2])
+                else:
+                    pass
 
     def image_ocr_processing(self,SPLIT_TABLEFILE_DIR,tesseract_file,raise_bool,range_table_type):
         rsise_ration_list = []
@@ -196,7 +212,7 @@ class Image_processing_process:
         if len(tools) == 0:
             print("No OCR tool found")
             print("オプションに[-path <tesseractコマンドのパス>]を指定して再度実行してください")
-            print("デフォルトのtesseractコマンドの格納先:C:\Users\ユーザ名\AppData\Local\Programs\Tesseract-OCR\tesseract.exe")
+            print("デフォルトのtesseractコマンドの格納先:C:\\Users\\ユーザ名\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe")
 
             sys.exit(1)
 
@@ -251,7 +267,7 @@ class Image_decision_process:
                 if rsise_ration_list[location] > 0:
                     if row_list[location] != "-":
                         if range_table_type != "snowie3_win":
-                            if rsise_ration_list[location] - 5 < int(row_list[location]) < rsise_ration_list[location] + 5:
+                            if rsise_ration_list[location] - 5 < int(row_list[location]) < rsise_ration_list[location] + 9:
                                 range_list.append(int(row_list[location]))
                             else:
                                 self._output_error_message(q,mod,TRUMP_LIST,end_word)
@@ -264,15 +280,15 @@ class Image_decision_process:
                                 range_list.append(int(row_list[location]))
                     else:
                         if range_table_type != "snowie3_win":
-                            if 90 > rsise_ration_list[location] > 2:
+                            if 85 > rsise_ration_list[location] > 5:
                                 self._output_error_message(q,mod,TRUMP_LIST,end_word)
                                 range_list.append(-1)
-                            elif rsise_ration_list[location] >= 90:
+                            elif rsise_ration_list[location] >= 85:
                                 range_list.append(100)
                             else:
                                 range_list.append(-1)
                         else:
-                            if rsise_ration_list[location] >= 90:
+                            if rsise_ration_list[location] >= 85:
                                 range_list.append(100)
                             else:
                                 range_list.append(-1)
@@ -289,27 +305,27 @@ class Image_decision_process:
                 if call_ration_list[location] > 0:
                     if row_list[location] != "-":
                         if range_table_type != "snowie3_win":
-                            if call_ration_list[location] - 5 < 100 - int(row_list[location]) < call_ration_list[location] + 5:
+                            if call_ration_list[location] - 5 < 100 - int(row_list[location]) < call_ration_list[location] + 9:
                                 range_list.append(100 - int(row_list[location]))
                             else:
                                 self._output_error_message(q,mod,TRUMP_LIST,end_word)
                                 range_list.append(100 - int(row_list[location]))
                         else:
-                            if call_ration_list[location] >= 90:
+                            if call_ration_list[location] >= 85:
                                 range_list.append(100 - int(row_list[location]))
                             else:
                                 range_list.append(-1)
                     else:
                         if range_table_type != "snowie3_win":
-                            if 90 > call_ration_list[location] > 2:
+                            if 85 > call_ration_list[location] > 5:
                                 self._output_error_message(q,mod,TRUMP_LIST,end_word)
                                 range_list.append(-1)
-                            elif call_ration_list[location] >= 90:
+                            elif call_ration_list[location] >= 85:
                                 range_list.append(100)
                             else:
                                 range_list.append(-1)
                         else:
-                            if call_ration_list[location] >= 90:
+                            if call_ration_list[location] >= 85:
                                 range_list.append(100)
                             else:
                                 range_list.append(-1)
